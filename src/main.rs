@@ -72,19 +72,3 @@ pub async fn main() -> mongodb::error::Result<()> {
     Ok(())
 }
 
-/**
-Make a goe query using the coordinates of a boundary array and find all the restaurants contained
- **/
-pub async fn query_restaurants(collection: &Collection, coordinates: &Bson) {
-    let options = FindOptions::builder()
-        .projection(doc! { "_id": 0, "restaurant_id": 0, "grades": 0, "address.coord": 0})
-        .build();
-    let mut cursor_result = collection.find(doc! {"address.coord" : {"$geoWithin": { "$geometry": {"type": "Polygon", "coordinates": [coordinates]  }}}}, options).await;
-    let mut data = cursor_result.unwrap();
-    while let Some(result) = data.next().await {
-        match result {
-            Ok(document) => println!("{}", document),
-            Err(_err) => println!("{}", "error"),
-        }
-    }
-}
